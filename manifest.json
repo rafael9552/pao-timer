@@ -1,0 +1,21 @@
+{
+  "name": "Timer do Pão",
+  "short_name": "Timer Pão",
+  "description": "Calcule o timer da panificadora Britânia BPNE01",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#8B4513",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": ["utilities", "food"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

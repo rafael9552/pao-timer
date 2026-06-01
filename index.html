@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#B5651D">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Timer do Pão">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <title>Timer do Pão</title>
+  <style>
+    :root {
+      --brown:      #8B4513;
+      --brown-dark: #5C2D0A;
+      --brown-mid:  #C8864E;
+      --tan:        #DEB887;
+      --cream:      #FFF8F0;
+      --cream-mid:  #FFF3E5;
+      --text:       #3E1A00;
+      --text-mid:   #7A4000;
+      --green:      #2E7D32;
+      --green-bg:   #E8F5E9;
+      --green-bd:   #81C784;
+      --red:        #B71C1C;
+      --red-bg:     #FFEBEE;
+      --red-bd:     #EF9A9A;
+      --amber:      #E65100;
+      --amber-bg:   #FFF8E1;
+      --amber-bd:   #FFD54F;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+      background: var(--cream);
+      min-height: 100dvh;
+      color: var(--text);
+    }
+
+    /* ━━ HEADER ━━ */
+    .header {
+      background: linear-gradient(160deg, var(--brown) 0%, var(--brown-dark) 100%);
+      padding: 24px 20px 22px;
+      text-align: center;
+    }
+    .header-emoji { font-size: 2.8rem; display: block; margin-bottom: 4px; }
+    .header h1    { font-size: 1.7rem; font-weight: 800; color: #fff; }
+    .header-sub   { font-size: .82rem; color: rgba(255,255,255,.65); margin-top: 3px; }
+
+    .relogio-wrap { margin-top: 14px; display: flex; justify-content: center; }
+    .relogio {
+      background: rgba(255,255,255,.13);
+      border: 1.5px solid rgba(255,255,255,.22);
+      border-radius: 30px;
+      padding: 8px 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .rel-hora { font-family: 'Courier New', monospace; font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 1px; }
+    .rel-data { font-size: .78rem; color: rgba(255,255,255,.75); }
+    .rel-dot  { width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    .debug-badge {
+      display: none; margin-top: 8px;
+      background: #FF6F00; border-radius: 30px;
+      padding: 5px 14px; font-size: .75rem; font-weight: 700; color: #fff; letter-spacing: .3px;
+    }
+    .debug-badge.on { display: inline-block; }
+
+    /* ━━ LAYOUT ━━ */
+    .content { padding: 18px 15px 52px; max-width: 440px; margin: 0 auto; }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 20px 18px;
+      box-shadow: 0 2px 14px rgba(139,69,19,.1);
+      margin-bottom: 14px;
+    }
+
+    .sec-label {
+      font-size: .72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--brown);
+      margin-bottom: 11px;
+    }
+
+    /* ━━ CHIPS DE DIA ━━ */
+    .day-scroll {
+      display: flex; gap: 8px;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .day-scroll::-webkit-scrollbar { display: none; }
+
+    .day-chip {
+      flex-shrink: 0; scroll-snap-align: start;
+      min-width: 68px; padding: 12px 6px 10px;
+      border-radius: 14px; border: 2px solid var(--tan);
+      background: #fff; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      transition: background .15s, border-color .15s, color .15s;
+      touch-action: manipulation;
+    }
+    .day-chip.sel {
+      background: var(--brown); border-color: var(--brown); color: #fff;
+    }
+    .dc-nome { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; opacity: .75; }
+    .dc-num  { font-size: 1.65rem; font-weight: 900; line-height: 1.05; }
+    .dc-mes  { font-size: .65rem; font-weight: 600; opacity: .65; }
+    .day-chip.sel .dc-nome,
+    .day-chip.sel .dc-mes { opacity: .8; }
+
+    /* ━━ SPINNERS DE HORA ━━ */
+    .spinner-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-top: 18px;
+    }
+    .spinner { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+
+    .spin-btn {
+      width: 88px; height: 64px;
+      border: 2px solid var(--tan);
+      border-radius: 14px;
+      background: var(--cream-mid);
+      font-size: 1.6rem; color: var(--brown);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .1s, border-color .1s;
+      user-select: none; -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .spin-btn:active,
+    .spin-btn.pressed { background: var(--brown); border-color: var(--brown); color: #fff; }
+
+    .spin-val {
+      font-size: 3.6rem; font-weight: 900;
+      color: var(--brown); line-height: 1;
+      min-width: 88px; text-align: center;
+      letter-spacing: 1px;
+    }
+    .spin-lbl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--text-mid); margin-top: 2px; }
+
+    .time-colon {
+      font-size: 3.2rem; font-weight: 900;
+      color: var(--brown); opacity: .5;
+      margin-top: -28px; /* alinha com o valor */
+      user-select: none;
+    }
+
+    /* resumo da seleção */
+    .picker-summary {
+      margin-top: 16px;
+      background: var(--cream-mid);
+      border-radius: 12px; padding: 13px 16px;
+      text-align: center;
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--brown); line-height: 1.4;
+    }
+    .picker-summary span { font-size: .85rem; font-weight: 400; color: var(--text-mid); display: block; margin-top: 2px; }
+
+    /* ━━ SELECT PROGRAMA ━━ */
+    select, input[type="number"] {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      border: 2px solid var(--tan); border-radius: 12px;
+      background: var(--cream-mid); color: var(--text);
+      outline: none; appearance: none; -webkit-appearance: none;
+      transition: border-color .15s;
+    }
+    select:focus, input:focus { border-color: var(--brown); background: #fff; }
+
+    .row-2 { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+    .unit  { font-size: .95rem; color: var(--brown); font-weight: 700; white-space: nowrap; }
+    #custom-block { display: none; }
+
+    /* ━━ BOTÃO CALCULAR ━━ */
+    .btn-calc {
+      width: 100%; padding: 20px;
+      font-size: 1.25rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--brown-mid), var(--brown));
+      color: #fff; border: none; border-radius: 16px;
+      cursor: pointer; letter-spacing: .2px;
+      box-shadow: 0 4px 16px rgba(139,69,19,.35);
+      transition: transform .1s, box-shadow .1s;
+      margin-bottom: 20px; touch-action: manipulation;
+    }
+    .btn-calc:active { transform: scale(.97); box-shadow: 0 2px 6px rgba(139,69,19,.25); }
+
+    /* ━━ RESULTADO — ERRO ━━ */
+    .card-erro {
+      display: none;
+      background: var(--red-bg); border: 2px solid var(--red-bd);
+      border-radius: 16px; padding: 20px 18px; margin-bottom: 14px;
+    }
+    .card-erro.on { display: block; }
+    .erro-titulo { font-size: 1.1rem; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+    .erro-desc   { font-size: .95rem; color: #7B2020; line-height: 1.55; white-space: pre-line; }
+
+    /* ━━ RESULTADO — TIMER ━━ */
+    .card-timer {
+      display: none;
+      background: #fff; border-radius: 18px;
+      overflow: hidden; box-shadow: 0 2px 14px rgba(139,69,19,.1);
+      margin-bottom: 14px;
+    }
+    .card-timer.on { display: block; }
+
+    .timer-top {
+      background: linear-gradient(135deg, var(--brown), var(--brown-dark));
+      padding: 20px 20px 16px; text-align: center;
+    }
+    .timer-label {
+      font-size: .78rem; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: 12px;
+    }
+    .display {
+      display: inline-flex; align-items: center; gap: 2px;
+      background: #111; border-radius: 12px; padding: 12px 22px;
+      border: 1px solid #333;
+      box-shadow: 0 4px 22px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .d-num {
+      font-family: 'Courier New', monospace;
+      font-size: 4.8rem; font-weight: 900; color: #FF9800;
+      letter-spacing: 2px; line-height: 1;
+      text-shadow: 0 0 22px rgba(255,152,0,.5);
+    }
+    .d-sep {
+      font-family: 'Courier New', monospace;
+      font-size: 4.2rem; font-weight: 900; color: #FF9800; line-height: 1;
+      text-shadow: 0 0 22px rgba(255,152,0,.5);
+      animation: blink 1.2s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 48%{opacity:.12} }
+    .timer-sub { font-size: .82rem; color: rgba(255,255,255,.65); margin-top: 10px; }
+
+    .timer-body { padding: 18px 18px 16px; }
+
+    /* passos */
+    .passos { list-style: none; }
+    .passos li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid #F0E0CC;
+      font-size: .98rem; color: #4A2800; line-height: 1.45;
+    }
+    .passos li:last-child { border-bottom: none; padding-bottom: 2px; }
+    .pn {
+      flex-shrink: 0; width: 26px; height: 26px;
+      background: var(--brown); color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .8rem; margin-top: 1px;
+    }
+
+    /* pills */
+    .info-row { display: flex; gap: 9px; margin-bottom: 14px; }
+    .pill {
+      flex: 1; background: var(--cream-mid); border: 1.5px solid var(--tan);
+      border-radius: 12px; padding: 10px 6px;
+      font-size: .72rem; color: var(--text-mid); text-align: center; line-height: 1.3;
+    }
+    .pill strong { display: block; font-size: .98rem; color: var(--brown); margin-top: 2px; font-weight: 800; }
+
+    /* banner */
+    .banner {
+      display: none; border-radius: 12px;
+      padding: 13px 15px; font-size: .92rem; font-weight: 600; line-height: 1.45;
+    }
+    .banner.on  { display: block; }
+    .b-ok     { background: var(--green-bg); border: 2px solid var(--green-bd); color: var(--green); }
+    .b-alerta { background: var(--amber-bg); border: 2px solid var(--amber-bd); color: var(--amber); }
+
+    /* ━━ BANNER INSTALAR ━━ */
+    .install-bar {
+      display: none;
+      background: linear-gradient(135deg, #1565C0, #0D47A1);
+      border-radius: 16px; margin-bottom: 14px;
+      padding: 16px 18px;
+      align-items: center; gap: 14px;
+    }
+    .install-bar.on { display: flex; }
+    .install-icon { font-size: 2rem; flex-shrink: 0; }
+    .install-txt  { flex: 1; }
+    .install-txt strong { display: block; font-size: 1rem; font-weight: 800; color: #fff; }
+    .install-txt span   { font-size: .82rem; color: rgba(255,255,255,.75); }
+    .btn-install {
+      flex-shrink: 0;
+      padding: 11px 18px; font-size: .95rem; font-weight: 800;
+      background: #fff; color: #0D47A1;
+      border: none; border-radius: 10px; cursor: pointer;
+      white-space: nowrap; touch-action: manipulation;
+    }
+    .btn-install:active { opacity: .85; }
+
+    /* ━━ DEBUG ━━ */
+    .btn-debug {
+      width: 100%; padding: 12px;
+      font-size: .88rem; font-weight: 600;
+      background: transparent; color: #aaa;
+      border: 1.5px dashed #ddd; border-radius: 12px;
+      cursor: pointer; margin-bottom: 14px; transition: all .15s;
+    }
+    .btn-debug.on { border-color: #FF6F00; color: var(--amber); background: var(--amber-bg); }
+
+    .card-debug {
+      display: none;
+      background: var(--amber-bg); border: 2px solid var(--amber-bd);
+      border-radius: 16px; padding: 18px; margin-bottom: 14px;
+    }
+    .card-debug.on { display: block; }
+    .card-debug .sec-label { color: var(--amber); }
+    .card-debug input[type="datetime-local"] {
+      width: 100%; padding: 14px 16px; font-size: 1.05rem;
+      border: 2px solid var(--amber-bd); border-radius: 12px;
+      background: #fff; color: var(--text); outline: none;
+      appearance: none; -webkit-appearance: none;
+    }
+    .card-debug input:focus { border-color: var(--amber); }
+    .debug-hint { font-size: .8rem; color: #7B5800; margin-top: 8px; line-height: 1.45; }
+    .btn-limpar {
+      margin-top: 12px; width: 100%; padding: 11px;
+      background: none; border: 1.5px solid var(--amber-bd);
+      border-radius: 10px; color: var(--amber);
+      font-size: .88rem; font-weight: 700; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ━━ HEADER ━━ -->
+<div class="header">
+  <span class="header-emoji">🍞</span>
+  <h1>Timer do Pão</h1>
+  <p class="header-sub">Britânia BPNE01 · 12 programas · timer até 13h</p>
+  <div class="relogio-wrap">
+    <div class="relogio">
+      <div class="rel-dot" id="dot"></div>
+      <div>
+        <div class="rel-hora" id="rel-hora">--:--:--</div>
+        <div class="rel-data" id="rel-data">carregando...</div>
+      </div>
+    </div>
+  </div>
+  <div class="debug-badge" id="debug-badge">🛠 Modo Teste ativo</div>
+</div>
+
+<!-- ━━ CONTEÚDO ━━ -->
+<div class="content">
+
+  <!-- CARD 1: picker de data/hora -->
+  <div class="card">
+    <div class="sec-label">📅 Qual dia quer o pão pronto?</div>
+    <div class="day-scroll" id="day-scroll"></div>
+
+    <div class="sec-label" style="margin-top:22px;">🕐 Que horas?</div>
+    <div class="spinner-row">
+
+      <!-- Hora -->
+      <div class="spinner">
+        <button class="spin-btn" id="h-up" aria-label="Aumentar hora">▲</button>
+        <div class="spin-val" id="spin-h">07</div>
+        <button class="spin-btn" id="h-dn" aria-label="Diminuir hora">▼</button>
+        <div class="spin-lbl">hora</div>
+      </div>
+
+      <div class="time-colon">:</div>
+
+      <!-- Minuto -->
+      <div class="spinner">
+        <button class="spin-btn" id="m-up" aria-label="Aumentar minutos">▲</button>
+        <div class="spin-val" id="spin-m">00</div>
+        <button class="spin-btn" id="m-dn" aria-label="Diminuir minutos">▼</button>
+        <div class="spin-lbl">minutos</div>
+      </div>
+
+    </div>
+
+    <!-- Resumo legível -->
+    <div class="picker-summary" id="picker-summary">
+      <span id="ps-linha"></span>
+    </div>
+  </div>
+
+  <!-- CARD 2: programa -->
+  <div class="card">
+    <div class="sec-label">🍞 Programa da panificadora</div>
+    <select id="bread-type" onchange="onTypeChange()">
+      <option value="180" selected>1 — Básico (Pão Branco) — 3h00</option>
+      <option value="230">2 — Pão Francês — 3h50</option>
+      <option value="220">3 — Pão Integral — 3h40</option>
+      <option value="100">4 — Rápido — 1h40</option>
+      <option value="175">5 — Pão Doce — 2h55</option>
+      <option value="210">6 — Sem Glúten — 3h30</option>
+      <option value="58">7 — Ultra Rápido — 58min</option>
+      <option value="90">8 — Massa (pizza, esfiha) — 1h30</option>
+      <option value="80">9 — Geléia — 1h20</option>
+      <option value="170">10 — Bolo — 2h50</option>
+      <option value="180">11 — Pão de Sanduíche — 3h00</option>
+      <option value="60">12 — Só Assar — 1h00</option>
+      <option value="custom">Outro tempo (personalizado)...</option>
+    </select>
+    <div id="custom-block">
+      <div class="sec-label" style="margin-top:14px;">Duração do programa</div>
+      <div class="row-2">
+        <input type="number" id="c-h" min="0" max="12" value="3" style="flex:1">
+        <span class="unit">h</span>
+        <input type="number" id="c-m" min="0" max="59" value="0" style="flex:1">
+        <span class="unit">min</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNER: instalar como app -->
+  <div class="install-bar" id="install-bar">
+    <div class="install-icon">📲</div>
+    <div class="install-txt">
+      <strong>Instalar como app</strong>
+      <span>Fica no celular igual aplicativo</span>
+    </div>
+    <button class="btn-install" onclick="installApp()">Instalar</button>
+  </div>
+
+  <!-- BOTÃO PRINCIPAL -->
+  <button class="btn-calc" onclick="calculate()">Calcular ➜</button>
+
+  <!-- RESULTADO: erro -->
+  <div class="card-erro" id="r-erro">
+    <div class="erro-titulo" id="r-erro-titulo"></div>
+    <div class="erro-desc"   id="r-erro-desc"></div>
+  </div>
+
+  <!-- RESULTADO: timer -->
+  <div class="card-timer" id="r-timer">
+    <div class="timer-top">
+      <div class="timer-label">Digite agora no painel da panificadora</div>
+      <div class="display">
+        <span class="d-num" id="r-hh">00</span>
+        <span class="d-sep">:</span>
+        <span class="d-num" id="r-mm">00</span>
+      </div>
+      <div class="timer-sub" id="r-sub"></div>
+    </div>
+    <div class="timer-body">
+      <ul class="passos" id="r-passos"></ul>
+    </div>
+  </div>
+
+  <!-- pills -->
+  <div class="info-row" id="r-info" style="display:none">
+    <div class="pill">Pronto às<strong id="r-pronto">--</strong></div>
+    <div class="pill">Duração<strong id="r-dur">--</strong></div>
+    <div class="pill">Faltam<strong id="r-falta">--</strong></div>
+  </div>
+
+  <!-- banner -->
+  <div class="banner" id="r-banner"></div>
+
+  <!-- DEBUG -->
+  <button class="btn-debug" id="btn-debug" onclick="toggleDebug()">🛠 Modo Teste (para programadores)</button>
+  <div class="card-debug" id="card-debug">
+    <div class="sec-label">🛠 Simular horário atual</div>
+    <input type="datetime-local" id="fake-now" oninput="onFakeChange()">
+    <div class="debug-hint">Defina um "agora" fictício para testar sem esperar. Os cálculos e o relógio usarão esse horário.</div>
+    <button class="btn-limpar" onclick="limparFake()">✕ Limpar — usar horário real</button>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+  /* ━━ CONSTANTES ━━ */
+  const pad = n => String(n).padStart(2,'0');
+  const fmt = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const DIAS_C  = ['dom','seg','ter','qua','qui','sex','sáb'];
+  const DIAS_F  = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const MESES_C = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const MESES_F = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  /* ━━ "AGORA" — real ou fake ━━ */
+  let _fakeNow = null;
+  function getNow() { return _fakeNow ? new Date(_fakeNow) : new Date(); }
+
+  /* ━━ ESTADO DO PICKER ━━ */
+  let selDate = null;   // Date com hora zerada
+  let selH    = 7;
+  let selM    = 0;      // múltiplo de 5
+
+  function getReadyAt() {
+    const d = new Date(selDate);
+    d.setHours(selH, selM, 0, 0);
+    return d;
+  }
+
+  /* ━━ CHIPS DE DIA ━━ */
+  function buildDayChips() {
+    const now  = getNow();
+    const hoje = new Date(now); hoje.setHours(0,0,0,0);
+    const container = document.getElementById('day-scroll');
+    const prevTs = selDate ? selDate.getTime() : null;
+    container.innerHTML = '';
+
+    let defaultIdx = 1; // amanhã
+    const dates = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(hoje); d.setDate(hoje.getDate() + i);
+      dates.push(d);
+      if (prevTs && d.getTime() === prevTs) defaultIdx = i;
+    }
+
+    dates.forEach((d, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'day-chip' + (i === defaultIdx ? ' sel' : '');
+      btn.dataset.i = i;
+
+      let nome;
+      if (i === 0)      nome = 'Hoje';
+      else if (i === 1) nome = 'Amanhã';
+      else              nome = DIAS_C[d.getDay()];
+
+      btn.innerHTML =
+        `<span class="dc-nome">${nome}</span>` +
+        `<span class="dc-num">${d.getDate()}</span>` +
+        `<span class="dc-mes">${MESES_C[d.getMonth()]}</span>`;
+
+      btn.addEventListener('click', () => selectDay(d, btn));
+      container.appendChild(btn);
+
+      if (i === defaultIdx) selDate = new Date(d);
+    });
+
+    updateSummary();
+  }
+
+  function selectDay(d, btn) {
+    selDate = new Date(d);
+    document.querySelectorAll('.day-chip').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+    updateSummary();
+  }
+
+  /* ━━ RESUMO ━━ */
+  function updateSummary() {
+    if (!selDate) return;
+    const dt = getReadyAt();
+    const now = getNow(); now.setHours(0,0,0,0);
+    const amanha = new Date(now); amanha.setDate(amanha.getDate()+1);
+    const tgt = new Date(selDate); tgt.setHours(0,0,0,0);
+
+    let dStr;
+    if (tgt.getTime() === now.getTime())    dStr = 'Hoje';
+    else if (tgt.getTime() === amanha.getTime()) dStr = 'Amanhã';
+    else dStr = `${DIAS_F[dt.getDay()]}, ${dt.getDate()} de ${MESES_F[dt.getMonth()]}`;
+
+    document.getElementById('picker-summary').innerHTML =
+      `<strong>${dStr} às ${pad(selH)}:${pad(selM)}</strong>` +
+      `<span>${dt.getDate()} de ${MESES_F[dt.getMonth()]} de ${dt.getFullYear()}</span>`;
+  }
+
+  /* ━━ SPINNERS ━━ */
+  function changeH(delta) {
+    selH = (selH + delta + 24) % 24;
+    document.getElementById('spin-h').textContent = pad(selH);
+    updateSummary();
+  }
+  function changeM(delta) {
+    // step de 5 min; 12 posições
+    const idx = Math.round(selM / 5);
+    selM = ((idx + delta + 12) % 12) * 5;
+    document.getElementById('spin-m').textContent = pad(selM);
+    updateSummary();
+  }
+
+  /* long-press para os botões ▲▼ */
+  function setupSpin(id, action) {
+    const btn = document.getElementById(id);
+    let iv = null, delay = 450;
+
+    function fire() {
+      action();
+      btn.classList.add('pressed');
+    }
+    function start(e) {
+      e.preventDefault();
+      fire();
+      iv = setTimeout(function repeat() {
+        fire();
+        delay = Math.max(60, delay - 40);
+        iv = setTimeout(repeat, delay);
+      }, 500);
+    }
+    function stop() {
+      clearTimeout(iv);
+      delay = 450;
+      btn.classList.remove('pressed');
+    }
+    btn.addEventListener('mousedown',  start);
+    btn.addEventListener('touchstart', start, { passive: false });
+    btn.addEventListener('mouseup',    stop);
+    btn.addEventListener('mouseleave', stop);
+    btn.addEventListener('touchend',   stop);
+    btn.addEventListener('touchcancel',stop);
+  }
+
+  /* ━━ RELÓGIO ━━ */
+  function tickClock() {
+    const now  = getNow();
+    const fake = !!_fakeNow;
+    document.getElementById('rel-hora').textContent =
+      `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    document.getElementById('rel-data').textContent =
+      `${DIAS_F[now.getDay()]}, ${now.getDate()} de ${MESES_C[now.getMonth()]} de ${now.getFullYear()}`;
+    document.getElementById('dot').style.background = fake ? '#FF9800' : '#4CAF50';
+    document.getElementById('debug-badge').classList.toggle('on', fake);
+    document.getElementById('btn-debug').classList.toggle('on', fake);
+  }
+
+  /* ━━ DEBUG ━━ */
+  function toggleDebug() {
+    const c = document.getElementById('card-debug');
+    c.classList.toggle('on');
+    document.getElementById('btn-debug').classList.toggle('on', c.classList.contains('on'));
+    if (c.classList.contains('on') && !document.getElementById('fake-now').value) {
+      const n = new Date();
+      document.getElementById('fake-now').value =
+        `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`;
+    }
+  }
+  function onFakeChange() {
+    const v = document.getElementById('fake-now').value;
+    _fakeNow = v || null;
+    tickClock();
+    buildDayChips();
+    if (_lastCalc) calculate();
+  }
+  function limparFake() {
+    document.getElementById('fake-now').value = '';
+    _fakeNow = null;
+    tickClock();
+    buildDayChips();
+    if (_lastCalc) calculate();
+  }
+
+  /* ━━ PROGRAMA ━━ */
+  function onTypeChange() {
+    document.getElementById('custom-block').style.display =
+      document.getElementById('bread-type').value === 'custom' ? 'block' : 'none';
+  }
+  function getDur() {
+    const v = document.getElementById('bread-type').value;
+    if (v === 'custom') {
+      return (parseInt(document.getElementById('c-h').value)||0)*60
+           + (parseInt(document.getElementById('c-m').value)||0);
+    }
+    return parseInt(v);
+  }
+  function progLabel() {
+    const s = document.getElementById('bread-type');
+    return s.value === 'custom' ? 'personalizado'
+      : s.options[s.selectedIndex].text.split('—')[0].trim();
+  }
+  function fmtDur(min) {
+    const h = Math.floor(min/60), m = min%60;
+    if (!h) return `${m}min`;
+    return m ? `${h}h ${pad(m)}min` : `${h}h`;
+  }
+  function fmtDate(d) {
+    const hoje  = getNow(); hoje.setHours(0,0,0,0);
+    const amh   = new Date(hoje); amh.setDate(amh.getDate()+1);
+    const tgt   = new Date(d);   tgt.setHours(0,0,0,0);
+    if (tgt.getTime()===hoje.getTime()) return 'hoje';
+    if (tgt.getTime()===amh.getTime())  return 'amanhã';
+    return `${DIAS_C[d.getDay()]}, ${d.getDate()} de ${MESES_C[d.getMonth()]}`;
+  }
+
+  /* ━━ CALCULAR ━━ */
+  let _iv = null, _lastCalc = false;
+
+  function calculate() {
+    if (!selDate) { alert('Escolha o dia!'); return; }
+    const dur = getDur();
+    if (dur <= 0) { alert('Insira a duração do programa!'); return; }
+    const readyAt = getReadyAt();
+
+    _lastCalc = true;
+    if (_iv) clearInterval(_iv);
+    render(readyAt, dur);
+    _iv = setInterval(() => render(readyAt, dur), 10000);
+
+    setTimeout(() => {
+      const el = document.getElementById('r-timer').classList.contains('on')
+        ? document.getElementById('r-timer') : document.getElementById('r-erro');
+      el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }, 80);
+  }
+
+  function render(readyAt, dur) {
+    const now   = getNow();
+    const diffM = Math.round((readyAt - now) / 60000);
+    const MAX_M = 13 * 60;
+
+    const eEl = document.getElementById('r-erro');
+    const tEl = document.getElementById('r-timer');
+    const iEl = document.getElementById('r-info');
+    const bEl = document.getElementById('r-banner');
+
+    function hideAll() {
+      eEl.classList.remove('on'); tEl.classList.remove('on');
+      iEl.style.display = 'none'; bEl.classList.remove('on');
+    }
+
+    if (diffM <= 0) {
+      hideAll();
+      showErro('⏰ Horário já passou', 'O horário escolhido já passou.\nEscolha um horário futuro.');
+      return;
+    }
+    if (diffM < dur) {
+      hideAll();
+      showErro('⚠️ Tempo insuficiente',
+        `O programa "${progLabel()}" precisa de ${fmtDur(dur)}, mas faltam apenas ${fmtDur(diffM)} para o horário escolhido.\n\nEscolha um horário pelo menos ${fmtDur(dur-diffM)} mais tarde, ou troque para um programa mais rápido.`);
+      return;
+    }
+    if (diffM > MAX_M) {
+      hideAll();
+      showErro('🕐 Prazo muito longo',
+        `O timer aceita no máximo 13h.\nO horário escolhido está a ${fmtDur(diffM)} daqui.\n\nEscolha um horário mais cedo.`);
+      return;
+    }
+
+    eEl.classList.remove('on');
+    tEl.classList.add('on');
+    iEl.style.display = 'flex';
+
+    const th = Math.floor(diffM/60), tm = diffM%60;
+    document.getElementById('r-hh').textContent = pad(th);
+    document.getElementById('r-mm').textContent = pad(tm);
+    document.getElementById('r-sub').textContent =
+      `Pão pronto ${fmtDate(readyAt)} às ${fmt(readyAt)}`;
+
+    document.getElementById('r-pronto').textContent = `${fmt(readyAt)} (${fmtDate(readyAt)})`;
+    document.getElementById('r-dur').textContent    = fmtDur(dur);
+    document.getElementById('r-falta').textContent  = fmtDur(diffM);
+
+    document.getElementById('r-passos').innerHTML = `
+      <li><span class="pn">1</span><span>Coloque os ingredientes na panificadora</span></li>
+      <li><span class="pn">2</span><span>Ligue e selecione <strong>${progLabel()}</strong></span></li>
+      <li><span class="pn">3</span><span>Pressione o botão <strong>Timer ⏱</strong></span></li>
+      <li><span class="pn">4</span><span>Use <strong>▲ ▼</strong> até aparecer <strong>${pad(th)}:${pad(tm)}</strong></span></li>
+      <li><span class="pn">5</span><span>Pressione <strong>Iniciar</strong> — pronto! 🎉</span></li>`;
+
+    bEl.classList.add('on');
+    if (diffM > 60) {
+      bEl.className = 'banner on b-ok';
+      bEl.textContent = '✅ Tudo certo! Configure o timer agora e pode descansar.';
+    } else {
+      bEl.className = 'banner on b-alerta';
+      bEl.textContent = `⚡ Menos de 1h! Configure a panificadora agora.`;
+    }
+  }
+
+  function showErro(titulo, desc) {
+    const el = document.getElementById('r-erro');
+    el.classList.add('on');
+    document.getElementById('r-erro-titulo').textContent = titulo;
+    document.getElementById('r-erro-desc').textContent   = desc;
+  }
+
+  /* ━━ INSTALL PWA ━━ */
+  let _installPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _installPrompt = e;
+    document.getElementById('install-bar').classList.add('on');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('install-bar').classList.remove('on');
+    _installPrompt = null;
+  });
+
+  function installApp() {
+    if (!_installPrompt) return;
+    _installPrompt.prompt();
+    _installPrompt.userChoice.then(() => {
+      _installPrompt = null;
+      document.getElementById('install-bar').classList.remove('on');
+    });
+  }
+
+  /* ━━ SERVICE WORKER ━━ */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
+  /* ━━ INIT ━━ */
+  setupSpin('h-up', () => changeH(+1));
+  setupSpin('h-dn', () => changeH(-1));
+  setupSpin('m-up', () => changeM(+1));
+  setupSpin('m-dn', () => changeM(-1));
+  buildDayChips();
+  setInterval(tickClock, 1000);
+  tickClock();
+  // scroll ao chip "Amanhã"
+  requestAnimationFrame(() => {
+    const chips = document.querySelectorAll('.day-chip');
+    if (chips[1]) chips[1].scrollIntoView({ inline:'center', block:'nearest' });
+  });
+</script>
+</body>
+</html>

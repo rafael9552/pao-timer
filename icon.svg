@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- fundo marrom escuro — preenche tudo para ícone maskable (círculo, squircle, etc.) -->
+  <rect width="512" height="512" fill="#6B2E0A"/>
+
+  <!-- corpo do pão: topo arredondado (cúpula) + laterais retas -->
+  <path d="M 68 338
+           C 68 112 444 112 444 338
+           L 444 418
+           C 444 448 418 460 390 460
+           L 122 460
+           C 94 460 68 448 68 418 Z"
+        fill="#DEB887"/>
+
+  <!-- casca inferior (banda mais escura) -->
+  <path d="M 68 412 L 444 412 L 444 418
+           C 444 448 418 460 390 460
+           L 122 460
+           C 94 460 68 448 68 418 Z"
+        fill="#B5651D"/>
+
+  <!-- linha de corte clássica no topo da cúpula -->
+  <path d="M 148 258 Q 256 206 364 258"
+        stroke="#B5651D" stroke-width="18" fill="none" stroke-linecap="round"/>
+
+  <!-- 3 marcas ovais (sementes / relevos) -->
+  <ellipse cx="190" cy="298" rx="20" ry="11" fill="#B5651D" transform="rotate(-22 190 298)"/>
+  <ellipse cx="256" cy="278" rx="20" ry="11" fill="#B5651D"/>
+  <ellipse cx="322" cy="298" rx="20" ry="11" fill="#B5651D" transform="rotate(22 322 298)"/>
+</svg>
