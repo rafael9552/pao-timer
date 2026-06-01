@@ -328,35 +328,57 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ━━ HISTÓRICO ━━ */
-    .card-hist { margin-bottom: 14px; }
+    .hist-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .btn-limpar-hist {
+      background: none; border: none; cursor: pointer;
+      font-size: .78rem; font-weight: 700; color: #bbb;
+      padding: 4px 0; touch-action: manipulation;
+    }
+    .btn-limpar-hist:active { color: var(--red); }
     .hist-vazio {
-      text-align: center; padding: 20px 0;
-      font-size: .9rem; color: #bbb;
+      text-align: center; padding: 16px 0;
+      font-size: .88rem; color: #ccc;
     }
     .hist-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 0; border-bottom: 1px solid #F0E0CC;
+      background: var(--cream-mid); border-radius: 12px;
+      padding: 12px 14px; margin-bottom: 8px;
     }
-    .hist-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .hist-icon {
-      font-size: 1.5rem; flex-shrink: 0;
-      width: 40px; height: 40px;
-      background: var(--cream-mid); border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
+    .hist-item:last-child { margin-bottom: 0; }
+    .hist-row1 { display: flex; align-items: flex-start; gap: 10px; }
+    .hist-em   { font-size: 1.4rem; flex-shrink: 0; line-height: 1.2; }
+    .hist-body { flex: 1; min-width: 0; }
+    .hist-titulo {
+      font-size: .95rem; font-weight: 800; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .hist-info { flex: 1; min-width: 0; }
-    .hist-prog { font-size: .95rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hist-detalhe { font-size: .78rem; color: var(--text-mid); margin-top: 2px; }
-    .hist-quando { font-size: .72rem; color: #aaa; margin-top: 1px; }
+    .hist-receita {
+      font-size: .75rem; color: var(--brown); font-weight: 600;
+      margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .hist-tags {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;
+    }
+    .hist-tag {
+      background: #fff; border: 1px solid var(--tan);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: .72rem; font-weight: 600; color: var(--text-mid);
+    }
+    .hist-row2 {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 10px; padding-top: 8px; border-top: 1px solid #EDD9C0;
+    }
+    .hist-quando { font-size: .72rem; color: #aaa; }
     .btn-usar {
-      flex-shrink: 0;
-      padding: 9px 14px; font-size: .82rem; font-weight: 700;
-      background: var(--cream-mid); color: var(--brown);
-      border: 1.5px solid var(--tan); border-radius: 10px;
+      padding: 7px 14px; font-size: .8rem; font-weight: 700;
+      background: var(--brown); color: #fff;
+      border: none; border-radius: 8px;
       cursor: pointer; touch-action: manipulation;
-      transition: background .1s;
+      transition: opacity .1s;
     }
-    .btn-usar:active { background: var(--tan); }
+    .btn-usar:active { opacity: .8; }
 
     /* ━━ BOTTOM NAV ━━ */
     .bot-nav {
@@ -660,8 +682,11 @@
   </button>
 
   <!-- HISTÓRICO -->
-  <div class="card card-hist" id="card-hist">
-    <div class="sec-label">📋 Histórico de cálculos</div>
+  <div class="card" id="card-hist">
+    <div class="hist-header">
+      <div class="sec-label" style="margin-bottom:0">📋 Histórico</div>
+      <button class="btn-limpar-hist" onclick="limparHistorico()">Limpar</button>
+    </div>
     <div id="hist-lista"><div class="hist-vazio">Nenhum cálculo ainda</div></div>
   </div>
 
@@ -976,21 +1001,28 @@
   }
 
   /* ━━ HISTÓRICO ━━ */
-  const HIST_KEY = 'pao-hist-v1';
-  const HIST_MAX = 5;
+  const HIST_KEY = 'pao-hist-v2';
+  const HIST_MAX = 3;
+
+  let _receitaParaHist = null; // preenchido por usarPrograma()
 
   function saveHistory(readyAt, dur) {
     try {
       const hist = getHistory();
+      // evita duplicata se calcular duas vezes seguidas o mesmo horário
+      if (hist.length && hist[0].readyTs === readyAt.getTime() && hist[0].prog === document.getElementById('bread-type').value) return;
       hist.unshift({
         ts:        Date.now(),
         prog:      document.getElementById('bread-type').value,
         progLabel: progLabel(),
+        ciclo:     (() => { const s = document.getElementById('bread-type'); return parseInt(s.options[s.selectedIndex]?.dataset?.ciclo||'1'); })(),
         h:         selH,
         m:         selM,
         dur:       dur,
         readyTs:   readyAt.getTime(),
+        receita:   _receitaParaHist ? { nome: _receitaParaHist.nome, emoji: _receitaParaHist.emoji } : null,
       });
+      _receitaParaHist = null;
       localStorage.setItem(HIST_KEY, JSON.stringify(hist.slice(0, HIST_MAX)));
       renderHistory();
     } catch(e) {}
@@ -1001,6 +1033,11 @@
     catch(e) { return []; }
   }
 
+  function limparHistorico() {
+    localStorage.removeItem(HIST_KEY);
+    renderHistory();
+  }
+
   function renderHistory() {
     const hist = getHistory();
     const lista = document.getElementById('hist-lista');
@@ -1008,39 +1045,47 @@
       lista.innerHTML = '<div class="hist-vazio">Nenhum cálculo ainda</div>';
       return;
     }
+    const EMOJIS_CICLO = {1:'🍞',2:'🥖',3:'🌾',4:'⚡',5:'🍯',6:'🌿',7:'🚀',8:'🍕',9:'🍓',10:'🎂',11:'🥪',12:'🔥'};
     lista.innerHTML = hist.map((e, i) => {
-      const ready  = new Date(e.readyTs);
-      const quando = tempoAtras(e.ts);
-      const hora   = `${pad(e.h)}:${pad(e.m)}`;
-      const dia    = fmtDateAbs(ready);
+      const ready = new Date(e.readyTs);
+      const emoji = e.receita?.emoji || EMOJIS_CICLO[e.ciclo] || '🍞';
+      const titulo = e.receita ? e.receita.nome : e.progLabel;
+      const subtitulo = e.receita ? e.progLabel : null;
+      const tagDia  = fmtDateAbs(ready);
+      const tagHora = `${pad(e.h)}:${pad(e.m)}`;
+      const tagDur  = fmtDur(e.dur);
       return `
         <div class="hist-item">
-          <div class="hist-icon">🍞</div>
-          <div class="hist-info">
-            <div class="hist-prog">${e.progLabel}</div>
-            <div class="hist-detalhe">${dia} às ${hora}</div>
-            <div class="hist-quando">${quando}</div>
+          <div class="hist-row1">
+            <div class="hist-em">${emoji}</div>
+            <div class="hist-body">
+              <div class="hist-titulo">${titulo}</div>
+              ${subtitulo ? `<div class="hist-receita">↳ ${subtitulo}</div>` : ''}
+            </div>
           </div>
-          <button class="btn-usar" onclick="usarHistorico(${i})">Usar</button>
+          <div class="hist-tags">
+            <span class="hist-tag">⏰ ${tagDia} às ${tagHora}</span>
+            <span class="hist-tag">⏱ ${tagDur}</span>
+          </div>
+          <div class="hist-row2">
+            <span class="hist-quando">${tempoAtras(e.ts)}</span>
+            <button class="btn-usar" onclick="usarHistorico(${i})">Usar ↗</button>
+          </div>
         </div>`;
     }).join('');
   }
 
   function usarHistorico(idx) {
-    const hist = getHistory();
-    const e = hist[idx];
+    const e = getHistory()[idx];
     if (!e) return;
-    // restaura hora, minuto e programa
     selH = e.h; selM = e.m;
     document.getElementById('spin-h').textContent = pad(selH);
     document.getElementById('spin-m').textContent = pad(selM);
     document.getElementById('bread-type').value = e.prog;
     onTypeChange();
-    // garante que os inputs estejam visíveis
     voltar();
     updateSummary();
-    // sobe para os seletores
-    document.getElementById('card-picker').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('card-picker').scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
   function fmtDateAbs(d) {
@@ -1363,6 +1408,7 @@
 
   function usarPrograma() {
     if (!_recAtual) return;
+    _receitaParaHist = _recAtual; // guarda para o próximo saveHistory()
     const sel = document.getElementById('bread-type');
     for (let i = 0; i < sel.options.length; i++) {
       if (parseInt(sel.options[i].dataset.ciclo) === _recAtual.ciclo) {
