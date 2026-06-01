@@ -73,7 +73,7 @@
     .debug-badge.on { display: inline-block; }
 
     /* ━━ LAYOUT ━━ */
-    .content { padding: 18px 15px 52px; max-width: 440px; margin: 0 auto; }
+    .content { padding: 18px 15px 80px; max-width: 440px; margin: 0 auto; }
 
     .card {
       background: #fff;
@@ -300,6 +300,184 @@
     }
     .btn-install:active { opacity: .85; }
 
+    /* ━━ OCULTAR INPUTS DURANTE RESULTADO ━━ */
+    .oculto { display: none !important; }
+
+    .btn-voltar {
+      display: none;
+      width: 100%; padding: 17px;
+      font-size: 1rem; font-weight: 700;
+      background: #fff; color: var(--brown);
+      border: 2px solid var(--tan); border-radius: 14px;
+      cursor: pointer; margin-top: 6px; margin-bottom: 14px;
+      touch-action: manipulation; transition: background .15s, border-color .15s;
+    }
+    .btn-voltar:active { background: var(--cream-mid); border-color: var(--brown); }
+    .btn-voltar.on { display: block; }
+
+    /* ━━ TOAST "salvo" ━━ */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #333; color: #fff;
+      padding: 10px 20px; border-radius: 30px;
+      font-size: .88rem; font-weight: 600;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ━━ HISTÓRICO ━━ */
+    .card-hist { margin-bottom: 14px; }
+    .hist-vazio {
+      text-align: center; padding: 20px 0;
+      font-size: .9rem; color: #bbb;
+    }
+    .hist-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid #F0E0CC;
+    }
+    .hist-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .hist-icon {
+      font-size: 1.5rem; flex-shrink: 0;
+      width: 40px; height: 40px;
+      background: var(--cream-mid); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hist-info { flex: 1; min-width: 0; }
+    .hist-prog { font-size: .95rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hist-detalhe { font-size: .78rem; color: var(--text-mid); margin-top: 2px; }
+    .hist-quando { font-size: .72rem; color: #aaa; margin-top: 1px; }
+    .btn-usar {
+      flex-shrink: 0;
+      padding: 9px 14px; font-size: .82rem; font-weight: 700;
+      background: var(--cream-mid); color: var(--brown);
+      border: 1.5px solid var(--tan); border-radius: 10px;
+      cursor: pointer; touch-action: manipulation;
+      transition: background .1s;
+    }
+    .btn-usar:active { background: var(--tan); }
+
+    /* ━━ BOTTOM NAV ━━ */
+    .bot-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1.5px solid #eee;
+      display: flex; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .bot-btn {
+      flex: 1; padding: 10px 0 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      background: none; border: none; cursor: pointer;
+      color: #aaa; font-size: .68rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+      transition: color .15s; touch-action: manipulation;
+    }
+    .bot-btn .icon { font-size: 1.5rem; line-height: 1; }
+    .bot-btn.ativo { color: var(--brown); }
+
+    /* ━━ SEÇÃO RECEITAS ━━ */
+    #sec-receitas { display: none; }
+    #sec-receitas.on { display: block; }
+    #sec-timer.off { display: none; }
+
+    .rec-cats {
+      display: flex; gap: 8px;
+      overflow-x: scroll; -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
+      padding: 4px 0 8px;
+      scrollbar-width: none; -ms-overflow-style: none;
+      /* estende até a borda do card */
+      margin: 0 -18px; padding-left: 18px; padding-right: 18px;
+    }
+    .rec-cats::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      flex-shrink: 0;
+      padding: 10px 16px; border-radius: 20px;
+      border: 2px solid var(--tan); background: #fff;
+      cursor: pointer; font-size: .9rem; font-weight: 700;
+      color: var(--text-mid); white-space: nowrap;
+      touch-action: manipulation; transition: all .15s;
+      /* tamanho mínimo para ser fácil de tocar */
+      min-height: 44px; display: flex; align-items: center;
+    }
+    .cat-chip.sel { background: var(--brown); border-color: var(--brown); color: #fff; }
+
+    /* lista de receitas */
+    .rec-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 0; border-bottom: 1px solid #F0E0CC;
+      cursor: pointer; touch-action: manipulation;
+    }
+    .rec-item:last-child { border-bottom: none; }
+    .rec-item:active { opacity: .7; }
+    .rec-em { font-size: 1.6rem; flex-shrink: 0; width: 40px; text-align: center; }
+    .rec-info { flex: 1; min-width: 0; }
+    .rec-nome { font-size: .98rem; font-weight: 700; color: var(--text); }
+    .rec-ciclo { font-size: .75rem; color: var(--text-mid); margin-top: 2px; }
+    .rec-arrow { color: #ccc; font-size: 1.1rem; flex-shrink: 0; }
+
+    /* detalhe receita */
+    #rec-detalhe { display: none; }
+    #rec-detalhe.on { display: block; }
+    #rec-lista-wrap.hidden { display: none; }
+
+    .btn-rec-voltar {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      color: var(--brown); font-size: .95rem; font-weight: 700;
+      padding: 4px 0 16px; touch-action: manipulation;
+    }
+    .det-header {
+      background: linear-gradient(135deg, var(--brown), var(--brown-dark));
+      border-radius: 16px; padding: 20px; margin-bottom: 14px; color: #fff;
+    }
+    .det-emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+    .det-nome  { font-size: 1.3rem; font-weight: 800; line-height: 1.2; }
+    .det-prog  { font-size: .82rem; color: rgba(255,255,255,.75); margin-top: 4px; }
+
+    .size-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .size-tab {
+      padding: 8px 16px; border-radius: 20px;
+      border: 2px solid var(--tan); background: #fff;
+      font-size: .88rem; font-weight: 700; color: var(--text-mid);
+      cursor: pointer; touch-action: manipulation;
+    }
+    .size-tab.sel { background: var(--brown); border-color: var(--brown); color: #fff; }
+
+    .sec-titulo {
+      font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--brown); margin-bottom: 10px;
+    }
+    .ing-lista { list-style: none; }
+    .ing-lista li {
+      padding: 8px 0; border-bottom: 1px solid #F0E0CC;
+      font-size: .95rem; color: var(--text); display: flex; gap: 8px;
+    }
+    .ing-lista li:last-child { border-bottom: none; }
+    .ing-bola { width: 7px; height: 7px; border-radius: 50%; background: var(--brown); flex-shrink: 0; margin-top: 6px; }
+
+    .prep-lista { list-style: none; }
+    .prep-lista li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 9px 0; border-bottom: 1px solid #F0E0CC;
+      font-size: .92rem; color: var(--text); line-height: 1.4;
+    }
+    .prep-lista li:last-child { border-bottom: none; }
+    .prep-n {
+      flex-shrink: 0; width: 24px; height: 24px;
+      background: var(--cream-mid); color: var(--brown);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .78rem;
+    }
+    .btn-usar-prog {
+      width: 100%; padding: 18px; margin-top: 4px;
+      font-size: 1.05rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--brown-mid), var(--brown));
+      color: #fff; border: none; border-radius: 14px;
+      cursor: pointer; touch-action: manipulation;
+    }
+
     /* ━━ DEBUG ━━ */
     .btn-debug {
       width: 100%; padding: 12px;
@@ -352,11 +530,24 @@
   <div class="debug-badge" id="debug-badge">🛠 Modo Teste ativo</div>
 </div>
 
+<!-- ━━ NAVEGAÇÃO INFERIOR ━━ -->
+<nav class="bot-nav">
+  <button class="bot-btn ativo" id="nav-timer" onclick="irPara('timer')">
+    <span class="icon">⏱</span>Timer
+  </button>
+  <button class="bot-btn" id="nav-receitas" onclick="irPara('receitas')">
+    <span class="icon">📖</span>Receitas
+  </button>
+</nav>
+
 <!-- ━━ CONTEÚDO ━━ -->
 <div class="content">
 
+<!-- ══ SEÇÃO TIMER ══ -->
+<div id="sec-timer">
+
   <!-- CARD 1: picker de data/hora -->
-  <div class="card">
+  <div class="card" id="card-picker">
     <div class="sec-label">📅 Qual dia quer o pão pronto?</div>
     <div class="day-scroll" id="day-scroll"></div>
 
@@ -390,7 +581,7 @@
   </div>
 
   <!-- CARD 2: programa -->
-  <div class="card">
+  <div class="card" id="card-programa">
     <div class="sec-label">🍞 Programa da panificadora</div>
     <select id="bread-type" onchange="onTypeChange()">
       <option value="180" selected>1 — Básico (Pão Branco) — 3h00</option>
@@ -429,7 +620,7 @@
   </div>
 
   <!-- BOTÃO PRINCIPAL -->
-  <button class="btn-calc" onclick="calculate()">Calcular ➜</button>
+  <button class="btn-calc" id="btn-calc" onclick="calculate()">Calcular ➜</button>
 
   <!-- RESULTADO: erro -->
   <div class="card-erro" id="r-erro">
@@ -463,6 +654,62 @@
   <!-- banner -->
   <div class="banner" id="r-banner"></div>
 
+  <!-- BOTÃO VOLTAR -->
+  <button class="btn-voltar" id="btn-voltar" onclick="voltar()">
+    ← Alterar configurações
+  </button>
+
+  <!-- HISTÓRICO -->
+  <div class="card card-hist" id="card-hist">
+    <div class="sec-label">📋 Histórico de cálculos</div>
+    <div id="hist-lista"><div class="hist-vazio">Nenhum cálculo ainda</div></div>
+  </div>
+
+</div><!-- /sec-timer -->
+
+<!-- ══ SEÇÃO RECEITAS ══ -->
+<div id="sec-receitas">
+
+  <!-- Lista -->
+  <div id="rec-lista-wrap">
+    <div class="card">
+      <div class="sec-label">📂 Categoria</div>
+      <div class="rec-cats" id="rec-cats"></div>
+    </div>
+    <div class="card">
+      <div class="sec-label" id="rec-cat-titulo">Receitas</div>
+      <div id="rec-lista"></div>
+    </div>
+  </div>
+
+  <!-- Detalhe -->
+  <div id="rec-detalhe">
+    <button class="btn-rec-voltar" onclick="recVoltar()">← Voltar</button>
+    <div class="det-header">
+      <span class="det-emoji" id="det-emoji">🍞</span>
+      <div class="det-nome"  id="det-nome"></div>
+      <div class="det-prog"  id="det-prog"></div>
+    </div>
+    <div class="size-tabs" id="det-sizes"></div>
+    <div class="card">
+      <div class="sec-titulo">📋 Ingredientes</div>
+      <ul class="ing-lista" id="det-ings"></ul>
+    </div>
+    <div class="card" id="det-preparo-card">
+      <div class="sec-titulo">👨‍🍳 Modo de preparo</div>
+      <ol class="prep-lista" id="det-prep"></ol>
+    </div>
+    <div class="card" id="det-notas-card" style="display:none">
+      <div class="sec-titulo">💡 Dicas</div>
+      <div id="det-notas" style="font-size:.92rem;color:var(--text);line-height:1.6;"></div>
+    </div>
+    <button class="btn-usar-prog" id="det-btn-prog" onclick="usarPrograma()">
+      ⏱ Usar este programa no Timer
+    </button>
+  </div>
+
+</div><!-- /sec-receitas -->
+
   <!-- DEBUG -->
   <button class="btn-debug" id="btn-debug" onclick="toggleDebug()">🛠 Modo Teste (para programadores)</button>
   <div class="card-debug" id="card-debug">
@@ -474,6 +721,8 @@
 
 </div><!-- /content -->
 
+<div class="toast" id="toast">💾 Configuração salva</div>
+
 <script>
   /* ━━ CONSTANTES ━━ */
   const pad = n => String(n).padStart(2,'0');
@@ -482,6 +731,49 @@
   const DIAS_F  = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
   const MESES_C = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
   const MESES_F = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  /* ━━ PREFERÊNCIAS (localStorage) ━━ */
+  const PREFS_KEY = 'pao-prefs-v1';
+
+  function savePrefs() {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({
+        h:    selH,
+        m:    selM,
+        prog: document.getElementById('bread-type').value,
+        cH:   document.getElementById('c-h').value,
+        cM:   document.getElementById('c-m').value,
+      }));
+      showToast();
+    } catch(e) {}
+  }
+
+  function loadPrefs() {
+    try {
+      const raw = localStorage.getItem(PREFS_KEY);
+      if (!raw) return false;
+      const p = JSON.parse(raw);
+      if (p.h != null) selH = p.h;
+      if (p.m != null) selM = p.m;
+      document.getElementById('spin-h').textContent = pad(selH);
+      document.getElementById('spin-m').textContent = pad(selM);
+      if (p.prog) {
+        document.getElementById('bread-type').value = p.prog;
+        onTypeChange();
+      }
+      if (p.cH) document.getElementById('c-h').value = p.cH;
+      if (p.cM) document.getElementById('c-m').value = p.cM;
+      return true;
+    } catch(e) { return false; }
+  }
+
+  let _toastTimer = null;
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
 
   /* ━━ "AGORA" — real ou fake ━━ */
   let _fakeNow = null;
@@ -544,6 +836,7 @@
     document.querySelectorAll('.day-chip').forEach(b => b.classList.remove('sel'));
     btn.classList.add('sel');
     updateSummary();
+    savePrefs();
   }
 
   /* ━━ RESUMO ━━ */
@@ -569,13 +862,14 @@
     selH = (selH + delta + 24) % 24;
     document.getElementById('spin-h').textContent = pad(selH);
     updateSummary();
+    savePrefs();
   }
   function changeM(delta) {
-    // step de 5 min; 12 posições
     const idx = Math.round(selM / 5);
     selM = ((idx + delta + 12) % 12) * 5;
     document.getElementById('spin-m').textContent = pad(selM);
     updateSummary();
+    savePrefs();
   }
 
   /* long-press para os botões ▲▼ */
@@ -652,6 +946,7 @@
   function onTypeChange() {
     document.getElementById('custom-block').style.display =
       document.getElementById('bread-type').value === 'custom' ? 'block' : 'none';
+    savePrefs();
   }
   function getDur() {
     const v = document.getElementById('bread-type').value;
@@ -680,6 +975,117 @@
     return `${DIAS_C[d.getDay()]}, ${d.getDate()} de ${MESES_C[d.getMonth()]}`;
   }
 
+  /* ━━ HISTÓRICO ━━ */
+  const HIST_KEY = 'pao-hist-v1';
+  const HIST_MAX = 5;
+
+  function saveHistory(readyAt, dur) {
+    try {
+      const hist = getHistory();
+      hist.unshift({
+        ts:        Date.now(),
+        prog:      document.getElementById('bread-type').value,
+        progLabel: progLabel(),
+        h:         selH,
+        m:         selM,
+        dur:       dur,
+        readyTs:   readyAt.getTime(),
+      });
+      localStorage.setItem(HIST_KEY, JSON.stringify(hist.slice(0, HIST_MAX)));
+      renderHistory();
+    } catch(e) {}
+  }
+
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(HIST_KEY)) || []; }
+    catch(e) { return []; }
+  }
+
+  function renderHistory() {
+    const hist = getHistory();
+    const lista = document.getElementById('hist-lista');
+    if (!hist.length) {
+      lista.innerHTML = '<div class="hist-vazio">Nenhum cálculo ainda</div>';
+      return;
+    }
+    lista.innerHTML = hist.map((e, i) => {
+      const ready  = new Date(e.readyTs);
+      const quando = tempoAtras(e.ts);
+      const hora   = `${pad(e.h)}:${pad(e.m)}`;
+      const dia    = fmtDateAbs(ready);
+      return `
+        <div class="hist-item">
+          <div class="hist-icon">🍞</div>
+          <div class="hist-info">
+            <div class="hist-prog">${e.progLabel}</div>
+            <div class="hist-detalhe">${dia} às ${hora}</div>
+            <div class="hist-quando">${quando}</div>
+          </div>
+          <button class="btn-usar" onclick="usarHistorico(${i})">Usar</button>
+        </div>`;
+    }).join('');
+  }
+
+  function usarHistorico(idx) {
+    const hist = getHistory();
+    const e = hist[idx];
+    if (!e) return;
+    // restaura hora, minuto e programa
+    selH = e.h; selM = e.m;
+    document.getElementById('spin-h').textContent = pad(selH);
+    document.getElementById('spin-m').textContent = pad(selM);
+    document.getElementById('bread-type').value = e.prog;
+    onTypeChange();
+    // garante que os inputs estejam visíveis
+    voltar();
+    updateSummary();
+    // sobe para os seletores
+    document.getElementById('card-picker').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function fmtDateAbs(d) {
+    const hoje   = new Date(); hoje.setHours(0,0,0,0);
+    const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
+    const tgt    = new Date(d);   tgt.setHours(0,0,0,0);
+    if (tgt.getTime() === hoje.getTime())   return 'hoje';
+    if (tgt.getTime() === amanha.getTime()) return 'amanhã';
+    return `${DIAS_C[d.getDay()]} ${d.getDate()}/${pad(d.getMonth()+1)}`;
+  }
+
+  function tempoAtras(ts) {
+    const diff = Math.round((Date.now() - ts) / 60000); // minutos
+    if (diff < 1)   return 'agora mesmo';
+    if (diff < 60)  return `há ${diff} min`;
+    const h = Math.round(diff / 60);
+    if (h < 24)     return `há ${h}h`;
+    const d = Math.round(h / 24);
+    return `há ${d} dia${d > 1 ? 's' : ''}`;
+  }
+
+  /* ━━ MOSTRAR / OCULTAR INPUTS ━━ */
+  function mostrarResultado() {
+    document.getElementById('card-picker').classList.add('oculto');
+    document.getElementById('card-programa').classList.add('oculto');
+    document.getElementById('btn-calc').classList.add('oculto');
+    document.getElementById('btn-voltar').classList.add('on');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function voltar() {
+    document.getElementById('card-picker').classList.remove('oculto');
+    document.getElementById('card-programa').classList.remove('oculto');
+    document.getElementById('btn-calc').classList.remove('oculto');
+    document.getElementById('btn-voltar').classList.remove('on');
+    // esconde resultado
+    document.getElementById('r-timer').classList.remove('on');
+    document.getElementById('r-erro').classList.remove('on');
+    document.getElementById('r-info').style.display = 'none';
+    document.getElementById('r-banner').classList.remove('on');
+    if (_iv) { clearInterval(_iv); _iv = null; }
+    _lastCalc = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   /* ━━ CALCULAR ━━ */
   let _iv = null, _lastCalc = false;
 
@@ -694,10 +1100,14 @@
     render(readyAt, dur);
     _iv = setInterval(() => render(readyAt, dur), 10000);
 
+    // só esconde os inputs se o resultado for válido (sem erro)
     setTimeout(() => {
-      const el = document.getElementById('r-timer').classList.contains('on')
-        ? document.getElementById('r-timer') : document.getElementById('r-erro');
-      el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      if (document.getElementById('r-timer').classList.contains('on')) {
+        saveHistory(readyAt, dur);
+        mostrarResultado();
+      } else {
+        document.getElementById('r-erro').scrollIntoView({ behavior:'smooth', block:'nearest' });
+      }
     }, 80);
   }
 
@@ -807,14 +1217,165 @@
   setupSpin('h-dn', () => changeH(-1));
   setupSpin('m-up', () => changeM(+1));
   setupSpin('m-dn', () => changeM(-1));
+  const temPrefs = loadPrefs();
   buildDayChips();
+  renderHistory();
   setInterval(tickClock, 1000);
   tickClock();
   // scroll ao chip "Amanhã"
   requestAnimationFrame(() => {
     const chips = document.querySelectorAll('.day-chip');
     if (chips[1]) chips[1].scrollIntoView({ inline:'center', block:'nearest' });
+    // avisa que a configuração foi restaurada
+    if (temPrefs) {
+      const t = document.getElementById('toast');
+      t.textContent = '📌 Última configuração restaurada';
+      t.classList.add('show');
+      setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => { t.textContent = '💾 Configuração salva'; }, 300);
+      }, 2200);
+    }
   });
+  /* ━━ NAVEGAÇÃO ENTRE ABAS ━━ */
+  function irPara(aba) {
+    const isTimer = aba === 'timer';
+    document.getElementById('sec-timer').classList.toggle('off', !isTimer);
+    document.getElementById('sec-receitas').classList.toggle('on',  !isTimer);
+    document.getElementById('nav-timer').classList.toggle('ativo',   isTimer);
+    document.getElementById('nav-receitas').classList.toggle('ativo', !isTimer);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!isTimer && !_recIniciado) initReceitas();
+  }
+
+  /* ━━ RECEITAS ━━ */
+  let _recIniciado = false;
+  let _recCicloSel = null;
+  let _recAtual    = null;
+  let _recTamSel   = 0;
+
+  const PROG_DURACAO = {1:180,2:230,3:220,4:100,5:175,6:210,7:58,8:90,9:80,10:170,11:180,12:60};
+
+  function initReceitas() {
+    _recIniciado = true;
+    // monta chips de categorias
+    const cats = [...new Set(RECEITAS.map(r => r.ciclo))].sort((a,b)=>a-b);
+    const wrap = document.getElementById('rec-cats');
+    wrap.innerHTML = cats.map(c => {
+      const ex = RECEITAS.find(r => r.ciclo === c);
+      return `<button class="cat-chip" data-ciclo="${c}" onclick="recSelecionaCat(${c},this)">${ex.emoji} ${ex.cicloNome}</button>`;
+    }).join('');
+    recSelecionaCat(cats[0], wrap.querySelector('.cat-chip'));
+  }
+
+  function recSelecionaCat(ciclo, btn) {
+    _recCicloSel = ciclo;
+    document.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+    const lista = RECEITAS.filter(r => r.ciclo === ciclo);
+    const ex = lista[0];
+    document.getElementById('rec-cat-titulo').textContent = `${ex.emoji} ${ex.cicloNome} — ${lista.length} receitas`;
+    document.getElementById('rec-lista').innerHTML = lista.map((r,i) => {
+      const tams = r.tamanhos.map(t => t.tamanho).join(', ');
+      return `<div class="rec-item" onclick="recAbre('${r.id}')">
+        <div class="rec-em">${r.emoji}</div>
+        <div class="rec-info">
+          <div class="rec-nome">${r.nome}</div>
+          <div class="rec-ciclo">${tams || '900g'}</div>
+        </div>
+        <div class="rec-arrow">›</div>
+      </div>`;
+    }).join('');
+  }
+
+  function recAbre(id) {
+    _recAtual = RECEITAS.find(r => r.id === id);
+    if (!_recAtual) return;
+    _recTamSel = 0;
+
+    document.getElementById('rec-lista-wrap').classList.add('hidden');
+    document.getElementById('rec-detalhe').classList.add('on');
+
+    document.getElementById('det-emoji').textContent = _recAtual.emoji;
+    document.getElementById('det-nome').textContent  = _recAtual.nome;
+    document.getElementById('det-prog').textContent  = `Ciclo ${_recAtual.ciclo} — ${_recAtual.cicloNome}`;
+
+    // tabs de tamanho
+    const sizes = document.getElementById('det-sizes');
+    if (_recAtual.tamanhos.length > 1) {
+      sizes.innerHTML = _recAtual.tamanhos.map((t,i) =>
+        `<button class="size-tab${i===0?' sel':''}" onclick="recTamanho(${i},this)">${t.tamanho}</button>`
+      ).join('');
+      sizes.style.display = 'flex';
+    } else {
+      sizes.innerHTML = '';
+      sizes.style.display = 'none';
+    }
+
+    renderIngredientes(0);
+    renderPreparo();
+    renderNotas();
+
+    const dur = PROG_DURACAO[_recAtual.ciclo];
+    const h = Math.floor(dur/60), m = dur%60;
+    document.getElementById('det-btn-prog').textContent = `⏱ Usar — ${_recAtual.cicloNome} (${h}h${m>0?m+'min':''})`;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function recTamanho(idx, btn) {
+    _recTamSel = idx;
+    document.querySelectorAll('.size-tab').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+    renderIngredientes(idx);
+  }
+
+  function renderIngredientes(idx) {
+    const tam = _recAtual.tamanhos[idx];
+    if (!tam) { document.getElementById('det-ings').innerHTML = '<li><div class="ing-bola"></div>Ingredientes não disponíveis</li>'; return; }
+    document.getElementById('det-ings').innerHTML = tam.ingredientes.map(i =>
+      `<li><div class="ing-bola"></div>${i}</li>`
+    ).join('');
+  }
+
+  function renderPreparo() {
+    const card = document.getElementById('det-preparo-card');
+    if (!_recAtual.preparo || !_recAtual.preparo.length) { card.style.display='none'; return; }
+    card.style.display = 'block';
+    document.getElementById('det-prep').innerHTML = _recAtual.preparo.map((p,i) =>
+      `<li><div class="prep-n">${i+1}</div><span>${p}</span></li>`
+    ).join('');
+  }
+
+  function renderNotas() {
+    const card = document.getElementById('det-notas-card');
+    const notas = _recAtual.notas || [];
+    if (!notas.length) { card.style.display='none'; return; }
+    card.style.display = 'block';
+    document.getElementById('det-notas').innerHTML = notas.map(n => `<p style="margin-bottom:6px">• ${n}</p>`).join('');
+  }
+
+  function recVoltar() {
+    document.getElementById('rec-detalhe').classList.remove('on');
+    document.getElementById('rec-lista-wrap').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function usarPrograma() {
+    if (!_recAtual) return;
+    // acha o option correspondente ao ciclo
+    const sel = document.getElementById('bread-type');
+    for (let i = 0; i < sel.options.length; i++) {
+      if (parseInt(sel.options[i].value) === PROG_DURACAO[_recAtual.ciclo]) {
+        sel.selectedIndex = i; break;
+      }
+    }
+    onTypeChange();
+    irPara('timer');
+    // garante que inputs estejam visíveis
+    voltar();
+  }
 </script>
+<script src="receitas.js"></script>
 </body>
 </html>
