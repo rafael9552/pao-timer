@@ -1,5 +1,5 @@
-const CACHE = 'pao-timer-v2';
-const FILES = ['./index.html', './manifest.json', './icon.svg', './receitas.js'];
+const CACHE = 'pao-timer-v3';
+const FILES = ['./index.html', './manifest.json', './assets/icon.svg', './assets/receitas.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));

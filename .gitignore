@@ -1,0 +1,6 @@
+# Arquivos Windows/WSL
+*:Zone.Identifier
+
+# Sistema
+.DS_Store
+Thumbs.db
