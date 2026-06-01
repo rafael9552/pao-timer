@@ -584,18 +584,18 @@
   <div class="card" id="card-programa">
     <div class="sec-label">🍞 Programa da panificadora</div>
     <select id="bread-type" onchange="onTypeChange()">
-      <option value="180" selected>1 — Básico (Pão Branco) — 3h00</option>
-      <option value="230">2 — Pão Francês — 3h50</option>
-      <option value="220">3 — Pão Integral — 3h40</option>
-      <option value="100">4 — Rápido — 1h40</option>
-      <option value="175">5 — Pão Doce — 2h55</option>
-      <option value="210">6 — Sem Glúten — 3h30</option>
-      <option value="58">7 — Ultra Rápido — 58min</option>
-      <option value="90">8 — Massa (pizza, esfiha) — 1h30</option>
-      <option value="80">9 — Geléia — 1h20</option>
-      <option value="170">10 — Bolo — 2h50</option>
-      <option value="180">11 — Pão de Sanduíche — 3h00</option>
-      <option value="60">12 — Só Assar — 1h00</option>
+      <option value="180"  data-ciclo="1"  selected>1 — Básico (Pão Branco) — 3h00</option>
+      <option value="230"  data-ciclo="2" >2 — Pão Francês — 3h50</option>
+      <option value="220"  data-ciclo="3" >3 — Pão Integral — 3h40</option>
+      <option value="100"  data-ciclo="4" >4 — Rápido — 1h40</option>
+      <option value="175"  data-ciclo="5" >5 — Pão Doce — 2h55</option>
+      <option value="210"  data-ciclo="6" >6 — Sem Glúten — 3h30</option>
+      <option value="58"   data-ciclo="7" >7 — Ultra Rápido — 58min</option>
+      <option value="90"   data-ciclo="8" >8 — Massa (pizza, esfiha) — 1h30</option>
+      <option value="80"   data-ciclo="9" >9 — Geléia — 1h20</option>
+      <option value="170"  data-ciclo="10">10 — Bolo — 2h50</option>
+      <option value="180"  data-ciclo="11">11 — Pão de Sanduíche — 3h00</option>
+      <option value="60"   data-ciclo="12">12 — Só Assar — 1h00</option>
       <option value="custom">Outro tempo (personalizado)...</option>
     </select>
     <div id="custom-block">
@@ -1363,17 +1363,21 @@
 
   function usarPrograma() {
     if (!_recAtual) return;
-    // acha o option correspondente ao ciclo
     const sel = document.getElementById('bread-type');
     for (let i = 0; i < sel.options.length; i++) {
-      if (parseInt(sel.options[i].value) === PROG_DURACAO[_recAtual.ciclo]) {
+      if (parseInt(sel.options[i].dataset.ciclo) === _recAtual.ciclo) {
         sel.selectedIndex = i; break;
       }
     }
     onTypeChange();
+    voltar();        // garante que inputs do timer estejam visíveis
     irPara('timer');
-    // garante que inputs estejam visíveis
-    voltar();
+    // toast confirmando
+    const t = document.getElementById('toast');
+    t.textContent = `🍞 ${_recAtual.cicloNome} selecionado`;
+    t.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
   }
 </script>
 <script src="receitas.js"></script>
